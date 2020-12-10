@@ -32,14 +32,17 @@ const blockWidth = player1x2 / 6;
 const nextPieceX = gameClockX;
 const nextPieceY = blockWidth * 3;
 
-let breakerOnBoard = [[]];
-const scoreX = gameClockX, scoreY = blockWidth * 12;
+let breakerOnBoard = [];
+const scoreX = gameClockX, scoreY = blockWidth * 12 - 10;
 let changeMade = true, pause = false, gameMinutes = 0, gameSeconds = 0;
 let recursiveColor = 'r';
 let dropHappened = false;
 let round = [];
 let comboRunning = false;
 let roundTotal = 0;
+let frameCount = 1;
+let frameDate = Date.now();
+let frameLapTime = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
 let dropBlockX = 0;
 let dropBlockY = 2;
@@ -133,6 +136,7 @@ function dropTheBoard() {
 const evaluateBoard = (breakerList) => {
     return (new Promise((resolve) => {
         if (breakerList.length > 0) {
+            let breakerRound = [];
             breakerLoop:
             for (let index = 0; index < breakerList.length; index++) {
                 const breaker = breakerList[index];
@@ -146,10 +150,10 @@ const evaluateBoard = (breakerList) => {
                     }
                     let blocksRemoved = 0;
                     if (recursiveColor === 't') {
-                        if (breaker[0] + 1 >= player1Board.length) {
+                        if (breaker[0] + 1 === player1Board.length) {
                             player1Board[breaker[0]][breaker[1]] = 'n';
                             blocksRemoved = 20;
-                        } else if (breaker[0] + 1 < player1Board.length) {
+                        } else {
                             player1Board[breaker[0]][breaker[1]] = 'n';
                             const colorToRemove = player1Board[breaker[0] + 1][breaker[1]].charAt(0);
                             player1Board.forEach((row, ri) => {
@@ -165,17 +169,20 @@ const evaluateBoard = (breakerList) => {
                     } else {
                         blocksRemoved = getConnectedSet(breaker);
                     }
-                    if (blocksRemoved === 1) {
+                    if (blocksRemoved < 2) {
                         player1Board[breaker[0]][breaker[1]] = breakerValue;
                     }
-                    else if (blocksRemoved > 1) {
+                    else {
                         removeBreaker(breaker[0], breaker[1]);
-                        round.push(blocksRemoved);
-                        dropTheBoard();
+                        breakerRound.push(blocksRemoved);
                     }
                 }
             }
             // finished breaker loop
+            if (breakerRound.length > 0) {
+                round.push(breakerRound.reduce((a, b) => a + b, 0));
+                dropTheBoard();
+            }
             if (dropHappened) {
                 changeMade = true;
                 dropHappened = false;
@@ -220,8 +227,8 @@ function dropTickerLoop() {
                     roundTotal = 0;
                     for (let index = 0; index < round.length; index++) {
                         const element = round[index];
-                        player1Score += Math.pow(element, (index + 1));
-                        roundTotal += Math.pow(element, (index + 1));
+                        player1Score += Math.pow(2, (index + 1)) * element;
+                        roundTotal += Math.pow(2, (index + 1)) * element;
                     }
                     dropBlockX = 0;
                     dropBlockY = 2;
@@ -249,13 +256,14 @@ let gameLoop = setInterval(() => {
         ctx.fillRect(player2x1, player2y1, player2x2, player2y2);
         ctx.fillRect(nextPieceX, nextPieceY, blockWidth * 2, blockWidth * 2);
 
-        ctx.fillStyle = 'white';
+        // ctx.fillStyle = 'white';
         ctx.font = '32px georgia';
-        if (gameSeconds < 10) {
-            ctx.fillText('Time: ' + gameMinutes + ':0' + gameSeconds, gameClockX, 30, blockWidth * 3);
-        } else {
-            ctx.fillText('Time: ' + gameMinutes + ':' + gameSeconds, gameClockX, 30, blockWidth * 3);
-        }
+        // if (gameSeconds < 10) {
+        //     ctx.fillText('Time: ' + gameMinutes + ':0' + gameSeconds, gameClockX, 30, blockWidth * 3);
+        // } else {
+        //     ctx.fillText('Time: ' + gameMinutes + ':' + gameSeconds, gameClockX, 30, blockWidth * 3);
+        // }
+        ctx.fillText((1000 / (frameLapTime.reduce((a, b) => a + b, 0) / frameLapTime.length)).toPrecision(4) + 'fps', gameClockX, 30, blockWidth * 3);
         ctx.fillText('Score: ' + player1Score, scoreX, scoreY);
         if (nextBlock.charAt(0) === 'r') {
             ctx.fillStyle = 'rgb(255, 0, 0)';
@@ -319,7 +327,14 @@ let gameLoop = setInterval(() => {
         });
         changeMade = false;
     }
-}, 10);
+    frameLapTime[frameCount] = Date.now() - frameDate;
+    if (frameCount + 1 === frameLapTime.length) {
+        frameCount = 0;
+    } else {
+        frameCount++;
+    }
+    frameDate = Date.now();
+}, 12);
 
 // eslint-disable-next-line no-unused-vars
 let gameTime = setInterval(() => {
