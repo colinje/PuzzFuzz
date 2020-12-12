@@ -34,7 +34,7 @@ const nextPieceY = blockWidth * 3;
 
 let breakerOnBoard = [];
 const scoreX = gameClockX, scoreY = blockWidth * 12 - 10;
-let changeMade = true, pause = false, gameMinutes = 0, gameSeconds = 0;
+let changeMade = true, pause = false; // , gameMinutes = 0, gameSeconds = 0;
 let recursiveColor = 'r';
 let dropHappened = false;
 let round = [];
@@ -334,20 +334,20 @@ let gameLoop = setInterval(() => {
         frameCount++;
     }
     frameDate = Date.now();
-}, 12);
+}, 10);
 
 // eslint-disable-next-line no-unused-vars
-let gameTime = setInterval(() => {
-    if (!pause) {
-        if (gameSeconds + 1 === 60) {
-            gameMinutes += 1;
-            gameSeconds = 0;
-        } else {
-            gameSeconds += 1;
-        }
-        changeMade = true;
-    }
-}, 1000)
+// let gameTime = setInterval(() => {
+//     if (!pause) {
+//         if (gameSeconds + 1 === 60) {
+//             gameMinutes += 1;
+//             gameSeconds = 0;
+//         } else {
+//             gameSeconds += 1;
+//         }
+//         changeMade = true;
+//     }
+// }, 1000)
 
 document.addEventListener('keyup', function (event) {
     if (!pause && !comboRunning) {
