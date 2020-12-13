@@ -26,6 +26,21 @@ const player2x2 = player1x2;
 const player2y2 = height;
 // let player2Board = [[]];
 
+const dropPattern1 = [['r3','r3','y3','y3','g3','g3'],
+['r3','r3','y3','y3','g3','g3'],
+['b3','b3','r3','r3','y3','y3'],
+['b3','b3','r3','r3','y3','y3']];
+
+const dropPatternDan = [['r3','r3','r3','r3','r3','r3'],
+['r3','r3','r3','r3','r3','r3'],
+['r3','r3','r3','r3','r3','r3'],
+['r3','r3','r3','r3','r3','r3']];
+
+const dropPattern2 = [['r3','y3','g3','b3','r3','g3'],
+['r3','y3','g3','b3','r3','g3'],
+['r3','y3','g3','b3','r3','g3'],
+['r3','y3','g3','b3','r3','g3']];
+
 const gameClockX = player1x2 + 20;
 
 const blockWidth = player1x2 / 6;
@@ -38,6 +53,7 @@ let changeMade = true, pause = false; // , gameMinutes = 0, gameSeconds = 0;
 let recursiveColor = 'r';
 let dropHappened = false;
 let round = [];
+let turnPieces = [];
 let comboRunning = false;
 let roundTotal = 0;
 let frameCount = 1;
